@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="nurse">
+	<select id="findAllPatients" resultType="patientVo">
+		<![CDATA[
+			select * from patient;
+		]]>
+	</select>
+	<select id="findPatientByNo" resultType="patientVo">
+		<![CDATA[
+			select * from patient where no = #{no};
+		]]>
+	</select>
+	<select id="findAllPatientByHospitalNo" resultType="patientVo">
+		<![CDATA[
+			select * from patient where hospital_no = #{no};
+		]]>
+	</select>
+	<select id="findPatientByName" resultType="patientVo">
+		<![CDATA[
+			select * from patient where name = #{name};
+		]]>
+	</select>
+	<insert id="insertPatient"   parameterType="patientVo">
+		<![CDATA[
+			insert into patient(name, rrn, address, phone_number, gender, has_insurance, reg_date, hospital_no) 
+			values (#{name},#{rrn}, #{address}, #{phoneNumber}, #{gender}, #{hasInsurance}, NOW(), #{hospitalNo});
+		]]>
+		<selectKey keyProperty="no" resultType="long" order="AFTER">
+			<![CDATA[
+				select last_insert_id();
+			]]>	
+		</selectKey>
+	</insert>
+	<select id="findAllAppointments" resultType="appointmentVo">
+		<![CDATA[
+			SELECT 
+				a.no as appointmentNo,
+				a.date as appointmentDate,
+			    b.name as patientName,
+			    b.rrn as patientAge,
+			    b.gender as patientGender,
+			    a.remarks as appointmentRemarks,
+			    a.status as appointmentStatus,
+			    c.name as doctorName
+			FROM appointment a
+			LEFT JOIN patient b on a.patient_no = b.no
+			LEFT JOIN employee c on a.employee_no = c.no
+		]]>
+	</select>
+	<select id="findAppointmentByPatientNo" resultType="nurseVo">
+	<![CDATA[
+			SELECT 
+				a.no as appointmentNo,
+				a.date as appointmentDate,
+			    b.name as patientName,
+			    b.rrn as patientAge,
+			    b.gender as patientGender,
+			    a.remarks as appointmentRemarks,
+			    a.status as appointmentStatus,
+			    c.name as doctorName
+			FROM appointment a
+			LEFT JOIN patient b on a.patient_no = b.no
+			LEFT JOIN employee c on a.employee_no = c.no
+			WHERE a.patient_no = #{no};
+			
+		]]>
+	</select>
+	<select id="findAppointmentByDate" resultType="appointmentVo">
+	<![CDATA[
+			SELECT 
+				a.no as no,
+				a.status as status,
+				a.date as date,
+				a.remarks as remarks,
+				a.hospital_no as hospitalNo,
+				b.no as patientNo,
+			    b.name as patientName,
+			    b.rrn as patientAge,
+			    b.gender as patientGender,
+			    c.no as employeeNo,
+			    c.name as doctorName
+			FROM appointment a
+			LEFT JOIN patient b on a.patient_no = b.no
+			LEFT JOIN employee c on a.employee_no = c.no
+			WHERE DATE(date) = #{date};
+			
+		]]>
+	</select>
+	<select id="findAppointmentByPatientName" resultType="nurseVo">
+	<![CDATA[
+			SELECT
+				a.no as appointmentNo,
+			    a.date as appointmentDate,
+			    b.name as patientName,
+			    b.rrn as patientAge,
+			    b.gender as patientGender,
+			    a.remarks as appointmentRemarks,
+			    a.status as appointmentStatus,
+			    c.name as doctorName
+			FROM
+				appointment a
+			LEFT JOIN patient b ON patient_no = b.no
+			LEFT JOIN employee c ON employee_no = c.no
+			WHERE b.name = #{patientName};
+			
+		]]>
+	</select>
+	<insert id="insertAppointment" parameterType="appointmentVo">
+		
+		<![CDATA[
+			insert into appointment(status, date, remarks, patient_no, employee_no, hospital_no) 
+			values (#{status}, NOW(), #{remarks}, #{patientNo}, #{employeeNo}, #{hospitalNo});
+		]]>
+		
+	</insert>
+	<update id="deleteAppointment" parameterType="long">
+		<![CDATA[
+			update appointment set status = 6 where no = #{no};
+		]]>
+	</update>
+	
+	<select id="findPaymentByPatientNo" parameterType="map" resultType="map">
+		<![CDATA[
+			SELECT
+				a.no as appointmentNo,
+				date_format(a.date, '%Y-%m-%d') as appointmentDate,
+				a.remarks as appointmentRemark,
+				b.no as diagnosisNo,
+				b.opinion as diagnosisOpinion,
+				c.no as treatmentNo,
+				c.medicine_name as medicineName,
+				c.treat as treat,
+				c.dose as dose,
+				d.medicine_name as presriptionMedicineName,
+				d.dose as prescriptionDose,
+				d.dosing_prequency as prescriptionDosingPrequency,
+				d.dosing_days as prescriptionDosingDays,
+				d.remark as prescriptionRemark,
+				e.name as patientName
+			FROM appointment a
+			LEFT JOIN diagnosis b on a.no = b.appointment_no 
+			LEFT JOIN treatment c on b.no = c.diagnosis_no
+			LEFT JOIN prescription d on b.no = d.diagnosis_no
+			LEFT JOIN patient e on a.patient_no = e.no
+			WHERE a.patient_no = (SELECT patient_no FROM appointment WHERE no = #{no}) and DATE(a.date) = DATE(now());
+		]]>
+	</select>
+	<update id="updateAppointmentStatus"  parameterType="map">
+		<![CDATA[
+			update appointment set status = #{status} where no = #{no};
+		]]>
+	</update>
+	<select id="findUnabledToWorkEmployeeList" parameterType="String" resultType="map">
+		<![CDATA[
+			SELECT 
+				employee_no
+			FROM
+				attendance_schedule
+			WHERE
+				DATE(#{date}) BETWEEN DATE(start_date) AND DATE(end_date)
+			    AND hospital_no=1
+			    AND is_confirmed=1;
+		]]>
+	</select>
+	<select id="findReceptionAppointmentList" parameterType="map" resultType="map">
+		<![CDATA[
+			SELECT date_format(date, '%H %I')
+			 FROM appointment
+			 WHERE
+				DATE(date)= #{date}
+			    AND employee_no = #{no};
+		]]>
+	</select>
+
+</mapper>

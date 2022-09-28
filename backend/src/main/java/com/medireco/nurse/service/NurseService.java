@@ -1,0 +1,151 @@
+package com.medireco.nurse.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.medireco.nurse.repository.NurseRepository;
+import com.medireco.vo.AppointmentVo;
+import com.medireco.vo.DiseaseDataVo;
+import com.medireco.vo.NurseVo;
+import com.medireco.vo.PatientVo;
+
+
+@Service
+public class NurseService {
+
+	@Autowired
+	private NurseRepository nurseRepository;
+
+	
+	public Boolean addAppointment(AppointmentVo appointmentVo) {
+		
+		return nurseRepository.insertAppointment(appointmentVo);
+	}
+
+	public Boolean modifyApointment(AppointmentVo appointmentVo) {
+
+		return nurseRepository.updateAppointment(appointmentVo);
+	}
+
+	public List<PatientVo> findPatientList() {
+
+		return nurseRepository.selectPatientList();
+	}
+
+	public PatientVo findPatient(Long no) {
+
+		return nurseRepository.selectPatient(no);
+	}
+	
+	@Transactional
+	public Boolean addPatient(Map<String, Object> param) {
+		PatientVo patientVo = new PatientVo();
+		AppointmentVo appointmentVo = new AppointmentVo();
+		String name = (String) param.get("name");
+		String rrn = (String) param.get("rrn");
+		String address = (String) param.get("address");
+		String phoneNumber = (String) param.get("phoneNumber");
+		int gender =  Integer.parseInt(String.valueOf(param.get("gender")));
+		int hasInsurance = Integer.parseInt(String.valueOf(param.get("hasInsurance")));
+		//String regDate = (String) param.get("regDate");
+		Long hospitalNo = ((Number)param.get("hospitalNo")).longValue();
+		Long employeeNo =  ((Number)param.get("employeeNo")).longValue();
+
+		String remarks = (String) param.get("remarks");
+		
+		int status =  (int) (param.get("status"));
+		System.out.println("test");
+		patientVo.setName(name);
+		patientVo.setRrn(rrn);
+		patientVo.setAddress(address);
+		patientVo.setPhoneNumber(phoneNumber);
+		patientVo.setGender((int)1);
+		patientVo.setHasInsurance((int)1);
+		//patientVo.setRegDate(regDate);
+		patientVo.setHospitalNo(hospitalNo);
+
+		nurseRepository.insertPatient(patientVo);
+		Long patientNo = patientVo.getNo();
+		
+		appointmentVo.setStatus(status);
+		//appointmentVo.setDate(regDate);
+		appointmentVo.setRemarks(remarks);
+		appointmentVo.setPatientNo(patientNo);
+		appointmentVo.setEmployeeNo(employeeNo);
+		appointmentVo.setHospitalNo(hospitalNo);
+		nurseRepository.insertAppointment(appointmentVo);
+		
+		return true;
+	}
+
+	public List<AppointmentVo> findAppointmentList() {
+
+		return nurseRepository.selectAppointmentList();
+	}
+
+	public NurseVo findAppointmentByPatientNo(Long no) {
+
+		return nurseRepository.selectAppointmentByPatientNo(no);
+	}
+
+	public List<NurseVo> findAppointmentByPatientName(String patientName) {
+		
+		return nurseRepository.selectAppointmentByPatientName(patientName);
+	}
+
+	public PatientVo findPatientByNo(Long no) {
+		return nurseRepository.selectPatientByNo(no);
+	}
+
+	public List<PatientVo> findPatientByName(String name) {
+		return nurseRepository.selectPatientByName(name);
+	}
+
+	public List<AppointmentVo> findAppointmentByDate(String date) {
+
+		return nurseRepository.selectAppointmentByDate(date);
+	}
+
+	public Boolean removeAppointment(Long no) {
+		
+		return nurseRepository.deleteAppointment(no);
+	}
+
+	public List<PatientVo> findPatientListByHospitalNo(Long no) {
+		
+		return nurseRepository.selectPatientListByHospitalNo(no);
+	}
+
+	public List<Map<String, Object>> findPaymentByPatientNo(Long no) {
+		
+		return nurseRepository.selectPaymentByPatientNo(no);
+	}
+
+	public Boolean updateAppointmentStatus(Map<String, Object> param) {
+		
+		
+		return nurseRepository.updateAppointmentStatus(param);
+	}
+
+	public List<Map<String, Object>> findUnabledToWorkEmployeeList(String date) {
+
+		return nurseRepository.selectUnabledToWorkEmployeeList(date);
+	}
+
+	public List<Map<String, Object>> receptionAppointmentList(Long no, String date) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		map.put("no", no);
+		map.put("date", date);
+		
+		return nurseRepository.selectReceptionAppointmentList(map);
+	}
+
+	
+}

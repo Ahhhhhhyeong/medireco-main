@@ -1,0 +1,51 @@
+[
+  {
+    "href": "#",
+    "no": 0,
+    "title": "접수 & 수납",
+    "level": "ROLE_NURSE",
+    "children": [
+      {"href": "nurse", "lable": "접수확인", "level": "ROLE_NURSE"},
+      {"href": "appointment", "lable": "접수", "level": "ROLE_NURSE"},
+      {"href": "reception", "lable": "예약", "level": "ROLE_NURSE"}
+    ]
+  },
+  {
+    "href": "#",
+    "no": 1,
+    "title": "진료",
+    "level": "ROLE_DOCTOR",
+    "children":[
+      {"href":"doctor", "lable": "진료", "level": "ROLE_DOCTOR"}
+    ]
+  },
+  {
+    "href": "#",
+    "no": 2,
+    "title": "환자 관리",
+    "level": "ROLE_NURSE",
+    "children":[
+      {"href": "patientList", "lable": "환자 목록", "level": "ROLE_NURSE"},
+      {"href": "visitedRecord", "lable": "내원 기록", "level": "ROLE_NURSE"}
+    ]
+  },
+  {
+    "href": "#",
+    "no": 3,
+    "title": "스케줄",
+    "level": "ALL",
+    "children": [
+      {"href": "attendance", "lable": "연월차 신청", "level": "ALL"},
+      {"href": "hospitalschedule", "lable": "병원 일정", "level": "ALL"}
+    ]
+  },
+  {
+    "href": "#",
+    "no": 4,
+    "title": "직원 관리",
+    "level": "ROLE_ADMIN",
+    "children":[
+      {"href": "employeelist", "lable": "직원 관리", "level": "ROLE_ADMIN"}
+    ]
+  }    
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "href": "#",
+    "no": 1,
+    "children": [
+      { "href": "hospitallist", "lable": "병원 관리" },
+      { "href": "disease", "lable": "질병 관리" },
+      { "href": "medicine", "lable": "의약품 관리" }
+    ]
+  }
+]

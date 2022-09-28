@@ -1,0 +1,24 @@
+
+.fc-prev-button, .fc-next-button, .fc-dayGridMonth-button, .fc-timeGridWeek-button, .fc-listYear-button {
+
+    background-color: #fff !important;
+    color: #24b9db !important;
+    border-color: #24b9db !important;
+}
+
+.fc-today-button {
+    background-color: #24b9db !important;
+    border: 0px !important;
+}
+
+.fc-toolbar-title {
+    font-weight: 400 !important;
+}
+
+.fc-day-sun {
+    color: #d32f2f !important;
+}
+
+.fc-day-sat {
+    color: #0026ca !important;
+}

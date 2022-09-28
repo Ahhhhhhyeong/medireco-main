@@ -1,0 +1,24 @@
+##Mac
+**/.DS_Store
+
+##Maven
+**/target
+**/build
+**/out
+
+
+## STS/Eclipse IDE
+**/.settings
+**/.classpath
+**/.project
+
+## VSCode
+.metaData
+.vscode
+
+## Node(JavaScript) Project
+**/node_modules
+**/package-lock.json
+
+## 환경설정 파일
+.env

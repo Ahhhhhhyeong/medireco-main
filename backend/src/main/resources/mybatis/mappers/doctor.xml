@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="doctor">
+	<select id="getTreatList" parameterType="long" resultType="doctorvo">
+		<![CDATA[
+			select 
+				a.no as appointmentNo,
+				date_format(a.date, '%Y-%m-%d') as appointmentDate, 
+				a.remarks as appointmentRemark, 
+				b.no as patientNo, 
+				b.name as patientName, 
+				concat( CASE WHEN substr(b.rrn, 8, 1) = '1' || substr(b.rrn, 8, 1) = '2' THEN '19'
+						ELSE '20' END, substr(b.rrn, 1, 2), '-', substr(b.rrn, 3, 2), '-', substr(b.rrn, 5, 2)) as patientBirth,
+				a.employee_no as employeeNo
+			from appointment a 
+			left join patient b on a.patient_no = b.no
+			where a.patient_no = (select patient_no from appointment where no = #{no})
+			order by a.no desc , a.date desc 
+		]]>
+	</select>
+	
+	<select id="getTreatCount" parameterType="long" resultType="int">
+		<![CDATA[
+			select count(*) from appointment where patient_no = #{no}
+		]]>
+	</select>
+	
+	
+	
+	
+	<!-- 의사 진료 완료했을 때 start -->
+	<insert id="insertDiagnosis" parameterType="diagnosisVo">
+		<![CDATA[
+			insert into diagnosis(appointment_no, opinion, patient_no) values (#{appointmentNo},#{opinion}, #{patientNo});
+		]]>
+		<selectKey keyProperty="no" resultType="long" order="AFTER">
+			<![CDATA[
+				select last_insert_id();
+			]]>
+		</selectKey>
+	</insert>
+	
+	<insert id="insertPrescription" parameterType="map">
+		<![CDATA[
+			insert into prescription(medicine_name, dose, dosing_prequency, dosing_days, remark, diagnosis_no) 
+			values (#{medicineName}, #{fullDose}, #{dosingPrequency}, #{dosingDays}, #{remark}, #{diagnosisNo});	
+		]]>
+	</insert>
+	
+	<insert id="insertDisease" parameterType="map">
+		<![CDATA[
+			insert into disease(disease_name, diagnosis_no) values (#{diseaseName}, #{diagnosisNo});		
+		]]>
+	</insert>
+		
+	<insert id="insertTreatment" parameterType="map">
+		<![CDATA[
+			insert into treatment(medicine_name, treat, dose, diagnosis_no) 
+			values (#{medicineName}, #{usage}, #{fullDose}, #{diagnosisNo});	
+		]]>
+	</insert>
+	
+	<update id="updateAppointment" parameterType="appointmentVo">
+		<![CDATA[
+			update appointment set status = #{status} where no = #{no}
+		]]>
+	</update>	
+	<!-- 의사 진료 완료했을 때 end -->
+	
+	
+	
+	
+	<!-- 모달(팝업)창 안에 들어갈 내용 start -->
+	<select id="getDiease" parameterType="map" resultType="diseasedatavo">
+		<![CDATA[
+			select 
+				disease_number as diseaseNumber,
+				disease_name as diseaseName
+			from disease_data
+			where disease_name like concat('%', #{name}, '%')
+			limit #{page}, 10
+		]]>
+	</select>
+	
+	<select id="dieaseCount" parameterType="string" resultType="int">
+	<![CDATA[
+		select count(*) from disease_data
+		where disease_name like concat('%', #{name}, '%') 
+	]]>
+	</select>
+	
+	
+	<select id="getMedicine" parameterType="map" resultType="medicinedatavo">
+		<![CDATA[
+			select 
+				medicine_number as medicineNumber,
+				medicine_name as medicineName,
+				medicine_unit as medicineUnit
+			FROM medicine_data		
+			where medicine_sort=1
+			and medicine_name like concat('%', #{name}, '%')
+			limit #{page}, 10
+		]]>
+	</select>
+	
+	<select id="medicineCount" parameterType="string" resultType="int">
+	<![CDATA[
+		select count(*) from medicine_data
+		where medicine_sort=1
+		and  medicine_name like concat('%', #{name}, '%') 
+	]]>
+	</select>
+	
+	<!-- 주사약 찾는거 -->
+	<select id="getTreatment" parameterType="map" resultType="medicinedatavo">
+		<![CDATA[
+			select 
+				medicine_number as medicineNumber,
+				medicine_name as medicineName,
+				medicine_unit as medicineUnit
+			FROM medicine_data		
+			where medicine_sort=2
+			and medicine_name like concat('%', #{name}, '%')
+			limit #{page}, 10
+		]]>
+	</select>
+	
+	<select id="injectionCount" parameterType="string" resultType="int">
+		<![CDATA[
+			select count(*) from medicine_data
+			where medicine_sort=2
+			and  medicine_name like concat('%', #{name}, '%') 
+		]]>
+	</select>
+	
+	<!-- 모달(팝업)창 안에 들어갈 내용 end -->
+</mapper>
